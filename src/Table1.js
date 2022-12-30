@@ -21,13 +21,14 @@ import DialogBox from "./Dialog";
 function Table1() {
   const [projectDetails, setProjectDetails] = React.useState([]);
   const [numberOfChar, setNumberOfChar] = React.useState("");
-  const [copyList, setCopyList] = React.useState(projectDetails);
+  const [filteredData, setFilteredData] = React.useState( []);
+  const [Data, setData] = React.useState({});
   const [open, setOpen] = React.useState(false);
 
   console.log(projectDetails);
 
   const requestSearch = (searched) => {
-    setCopyList(
+    setFilteredData(
       projectDetails.filter((item) =>
         item.name.toLowerCase().includes(searched.toLowerCase())
       )
@@ -36,9 +37,9 @@ function Table1() {
 
   function getNumber(projectDetails) {
     let num = 0;
-    if (copyList?.length > 0) {
-      for (let i = 0; i < copyList.length; i++) {
-        if (copyList[i].mal_id) num++;
+    if (filteredData?.length > 0) {
+      for (let i = 0; i < filteredData.length; i++) {
+        if (filteredData[i].mal_id) num++;
       }
     } else {
       for (let i = 0; i < projectDetails?.length; i++) {
@@ -50,13 +51,8 @@ function Table1() {
 
   React.useEffect(() => {
     getNumber();
-  }, [projectDetails, copyList]);
-
-  console.log(numberOfChar);
-
-  const function1 = () => {
-    // setName("change");
-  };
+  }, [ ]);
+   
 
   React.useEffect(() => {
     fetch(
@@ -68,8 +64,9 @@ function Table1() {
       });
   }, []);
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (data ) => {
     setOpen(true);
+    setData(data)
   };
   const handleClose = () => {
     setOpen(false);
@@ -77,7 +74,7 @@ function Table1() {
 
   return (
     <>
-     <DialogBox open={open} handleClose={handleClose} />
+     <DialogBox open={open}   handleClose={handleClose} Data={Data} />
       <Card sx={{ margin: "20px" }}>
        
         <TableContainer component={Paper}>
@@ -124,7 +121,7 @@ function Table1() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(copyList.length > 0 ? copyList : projectDetails).map((data) => (
+              {(filteredData.length > 0 ? filteredData : projectDetails).map((data) => (
                 <TableRow key={data.mal_id}>
                   <TableCell>
                     <img
@@ -142,7 +139,7 @@ function Table1() {
                     })}
                   </TableCell>
                   <TableCell>
-                    <ArrowForwardIcon onClick={handleClickOpen} />
+                    <ArrowForwardIcon onClick={() =>  {handleClickOpen(data)}} />
                   </TableCell>
                 </TableRow>
               ))}
