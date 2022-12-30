@@ -1,5 +1,4 @@
 import './App.css';
-import Table from './Table';
 import Table1 from './Table1';
 
 import "primereact/resources/themes/lara-light-indigo/theme.css";   

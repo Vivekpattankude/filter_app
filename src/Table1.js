@@ -15,22 +15,52 @@ import TableBody from "@mui/material/TableBody";
 import Card from "@mui/material/Card";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { LineAxisOutlined } from "@mui/icons-material";
+import Button from "@mui/material/Button";
+import DialogBox from "./Dialog";
 
 function Table1() {
   const [projectDetails, setProjectDetails] = React.useState([]);
-  const [name, setName] = React.useState("name");
+  const [numberOfChar, setNumberOfChar] = React.useState("");
+  const [copyList, setCopyList] = React.useState(projectDetails);
+  const [open, setOpen] = React.useState(false);
 
   console.log(projectDetails);
-  
+
+  const requestSearch = (searched) => {
+    setCopyList(
+      projectDetails.filter((item) =>
+        item.name.toLowerCase().includes(searched.toLowerCase())
+      )
+    );
+  };
+
+  function getNumber(projectDetails) {
+    let num = 0;
+    if (copyList?.length > 0) {
+      for (let i = 0; i < copyList.length; i++) {
+        if (copyList[i].mal_id) num++;
+      }
+    } else {
+      for (let i = 0; i < projectDetails?.length; i++) {
+        if (projectDetails[i].mal_id) num++;
+      }
+    }
+    setNumberOfChar(num);
+  }
+
+  React.useEffect(() => {
+    getNumber();
+  }, [projectDetails, copyList]);
+
+  console.log(numberOfChar);
 
   const function1 = () => {
-    setName("change");
+    // setName("change");
   };
 
   React.useEffect(() => {
     fetch(
-      `https://api.jikan.moe/v4/characters?page=1&limit=5&order_by=favorites&sort=desc`
+      `https://api.jikan.moe/v4/characters?page=1&limit=35&order_by=favorites&sort=desc`
     )
       .then((results) => results.json())
       .then((data) => {
@@ -38,67 +68,89 @@ function Table1() {
       });
   }, []);
 
-  return (
-    <Card sx={{ margin: "10px" }}>
-      <TableContainer component={Paper}>
-        <Box>
-          <TextField
-            sx={{ width: "20%", margin: "8px" }}
-            id="outlined-basic"
-            label="Outlined"
-            variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <IconButton>
-                  <SearchIcon />
-                </IconButton>
-              ),
-            }}
-          >
-            {" "}
-          </TextField>
-        </Box>
-        <div className="float">
-          <Typography
-            sx={{ flex: "1 1 100%", padding: "20px" }}
-            variant="h6"
-            id="tableTitle"
-            padding="5px"
-          >
-            Total 50 matching anime charectores found
-          </Typography>
-        </div>
-        <Table>
-          <TableHead>
-            <TableRow
-              sx={{
-                "& .MuiTableCell-root": {
-                  fontWeight: 600,
-                },
-              }}
-              style={{ backgroundColor: "#e0e0e0" }}
-            >
-              <TableCell>Anime img</TableCell>
-              <TableCell>Anime Name</TableCell>
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {projectDetails.map((data) => (
-              <TableRow key={data.mal_id}>
-                <TableCell>{data.name}</TableCell>
-                <TableCell>{name}</TableCell>
-                <TableCell>
-                  {" "}
-                  <ArrowForwardIcon onClick={function1} />
-                </TableCell>
+  return (
+    <>
+     <DialogBox open={open} handleClose={handleClose} />
+      <Card sx={{ margin: "20px" }}>
+       
+        <TableContainer component={Paper}>
+          <Box>
+            <TextField
+              sx={{ width: "20%", margin: "8px" }}
+              id="outlined-basic"
+              label="Search..."
+              variant="outlined"
+              onChange={(e) => requestSearch(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <IconButton>
+                    <SearchIcon />
+                  </IconButton>
+                ),
+              }}
+            ></TextField>
+          </Box>
+          <div className="float">
+            <Typography
+              sx={{ flex: "1 1 100%", padding: "20px" }}
+              variant="h6"
+              id="tableTitle"
+              padding="5px"
+            >
+              Total {numberOfChar} matching anime charectores found
+            </Typography>
+          </div>
+          <Table>
+            <TableHead>
+              <TableRow
+                sx={{
+                  "& .MuiTableCell-root": {
+                    fontWeight: 600,
+                  },
+                }}
+                style={{ backgroundColor: "#e0e0e0" }}
+              >
+                <TableCell>Anime Image</TableCell>
+                <TableCell>Anime Name</TableCell>
+
+                <TableCell>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Card>
+            </TableHead>
+            <TableBody>
+              {(copyList.length > 0 ? copyList : projectDetails).map((data) => (
+                <TableRow key={data.mal_id}>
+                  <TableCell>
+                    <img
+                      width={40}
+                      height={50}
+                      src={data.images.jpg.image_url}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {data.name}
+                    {data.nicknames.map((dt) => {
+                      <Button variant="outlined" size="small">
+                        {dt}
+                      </Button>;
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <ArrowForwardIcon onClick={handleClickOpen} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Card>
+    </>
   );
 }
 
