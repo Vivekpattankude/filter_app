@@ -22,6 +22,7 @@ function Table1() {
   const [name, setName] = React.useState("name");
 
   console.log(projectDetails);
+  
 
   const function1 = () => {
     setName("change");
